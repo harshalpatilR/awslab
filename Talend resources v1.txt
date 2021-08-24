@@ -21,7 +21,11 @@
 	
 	"dbcidrparameter" : {
     "Type" : "String",
-    "Default" : "10.0.1.0/24"},
+    "Default" : "10.0.1.0/25"},
+	
+	"dbcidrparameter2" : {
+    "Type" : "String",
+    "Default" : "10.0.3.0/25"},
 	
 	"linuxAMIidparameter" : {
 	"Type" : "String",
@@ -70,6 +74,7 @@
 			"Properties" : {
 				"VpcId" : { "Ref" : "TalendDemoVPC" },
 				"CidrBlock" : { "Ref" : "appcidrparameter" },
+				"AvailabilityZone" : "ap-southeast-1a",
 				"Tags" : [{"Key": "Name", "Value":"TalendAppSubnet"},{ "Key" : "Category", "Value": "Talend Demo"}]
 				}
 
@@ -80,9 +85,22 @@
 			"Properties" : {
 				"VpcId" : { "Ref" : "TalendDemoVPC" },
 				"CidrBlock" : { "Ref" : "dbcidrparameter" },
+				"AvailabilityZone" : "ap-southeast-1a",
 				"Tags" : [{"Key": "Name", "Value":"TalendDBSubnet"}, { "Key" : "Category", "Value": "Talend Demo"}]
 				}
 			}, 
+
+	"DBSubnet2": {
+			"Type" : "AWS::EC2::Subnet",
+			"Properties" : {
+				"VpcId" : { "Ref" : "TalendDemoVPC" },
+				"CidrBlock" : { "Ref" : "dbcidrparameter2" },
+				"AvailabilityZone" : "ap-southeast-1b",
+				"Tags" : [{"Key": "Name", "Value":"TalendDBSubnet2"}, { "Key" : "Category", "Value": "Talend Demo"}]
+				}
+			},		
+			
+			
 
 	"AppSecGrp" : {
 			"Type" : "AWS::EC2::SecurityGroup",
@@ -250,7 +268,8 @@
 
 		"Type" : "AWS::RDS::DBSubnetGroup",
 		"Properties" : {
-		"SubnetIds" : { "Ref" : "DBSubnet" }
+		"DBSubnetGroupDescription" : "DB subnet for Talend DB",
+		"SubnetIds" : [{ "Ref" : "DBSubnet" }, { "Ref" : "DBSubnet2" }]
 						}
 	},
 
