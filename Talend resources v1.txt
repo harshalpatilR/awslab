@@ -264,6 +264,22 @@
 						}
 			},
 			
+		"DBSecGrp" : {
+			"Type" : "AWS::EC2::SecurityGroup",
+			"Properties" : {
+				"GroupDescription" : "Allow all from App Subnet",
+				"VpcId" : {"Ref" : "TalendDemoVPC"},
+				"Tags" : [{"Key": "Name", "Value":"TalendDBSecGrp"}, { "Key" : "Category", "Value": "Talend Demo"}],
+				"SecurityGroupIngress" : [
+						{
+						"IpProtocol" : "tcp",
+						"FromPort" : "0",
+						"ToPort" : "65535",
+						"CidrIp" : { "Ref" : "appcidrparameter" }
+						}
+						]
+						}},					
+			
 	"TalendDBsubnetgroup" : {
 
 		"Type" : "AWS::RDS::DBSubnetGroup",
@@ -293,9 +309,9 @@
                 "MasterUsername":  "master",
                 "MasterUserPassword": "password",
 				
-				"DBSecurityGroups" : {
-                    "Ref": "TalendDbSecurityGroup"
-                },
+				"VPCSecurityGroups" : [{
+                    "Ref": "DBSecGrp"
+                }],
 				
 				"DBSubnetGroupName" : {
 				"Ref": "TalendDBsubnetgroup"
