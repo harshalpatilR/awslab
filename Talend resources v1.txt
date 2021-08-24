@@ -35,23 +35,23 @@
 	
 	"DBInstanceID": {
             "Default": "talenddbinstance",
-            "Type": "String",
+            "Type": "String"
         },
     
 	"DBName": {
             "Default": "talenddb",
-            "Type": "String",
+            "Type": "String"
         },
 		
     "DBInstanceClass": {
             "Default": "db.m5.2xlarge",
-            "Type": "String",
+            "Type": "String"
         },
 		
     "DBAllocatedStorage": {
             "Default": "300",
-            "Type": "Number",
-        },
+            "Type": "Number"
+        }
 		
   },
 
@@ -89,7 +89,7 @@
 			"Properties" : {
 				"GroupDescription" : "Allow http, https, rdp, postgresql and ssh to hosts",
 				"VpcId" : {"Ref" : "TalendDemoVPC"},
-				"Tags" : [{"Key": "Name", "Value":"TalendAppSecGrp"}, { "Key" : "Category", "Value": "Talend Demo"}]
+				"Tags" : [{"Key": "Name", "Value":"TalendAppSecGrp"}, { "Key" : "Category", "Value": "Talend Demo"}],
 				"SecurityGroupIngress" : [
 						{
 						"IpProtocol" : "tcp",
@@ -233,7 +233,7 @@
 
 			}
 
-			}			
+			},			
 
 
 	"TalendDbSecurityGroup" : {
@@ -244,15 +244,15 @@
 				"CIDRIP" : { "Ref" : "appcidrparameter" }
 							}	
 						}
-			}
+			},
 			
 	"TalendDBsubnetgroup" : {
 
 		"Type" : "AWS::RDS::DBSubnetGroup",
 		"Properties" : {
-		"SubnetIds" : { "Ref" : "DBSubnet" },
+		"SubnetIds" : { "Ref" : "DBSubnet" }
 						}
-	}
+	},
 
 	"TalendDB": {
             "Type": "AWS::RDS::DBInstance",
@@ -271,12 +271,8 @@
                 },
                 "Engine": "postgres",
                 "EngineVersion": "13.3",
-                "MasterUsername": {
-                    "Ref": "master"
-                },
-                "MasterUserPassword": {
-                    "Ref": "password"
-                },
+                "MasterUsername":  "master",
+                "MasterUserPassword": "password",
 				
 				"DBSecurityGroups" : {
                     "Ref": "TalendDbSecurityGroup"
