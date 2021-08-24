@@ -31,7 +31,28 @@
 	"windowsAMIidparameter" : {
 	"Type" : "String",
     "Default" : "ami-0a2232786115639d7"
-	}
+	},
+	
+	"DBInstanceID": {
+            "Default": "talenddbinstance",
+            "Type": "String",
+        },
+    
+	"DBName": {
+            "Default": "talenddb",
+            "Type": "String",
+        },
+		
+    "DBInstanceClass": {
+            "Default": "db.m5.2xlarge",
+            "Type": "String",
+        },
+		
+    "DBAllocatedStorage": {
+            "Default": "300",
+            "Type": "Number",
+        },
+		
   },
 
 "Resources": {
@@ -214,15 +235,60 @@
 
 			}			
 
+
+	"TalendDbSecurityGroup" : {
+		"Type" : "AWS::RDS::DBSecurityGroup",
+		"Properties" : {
+		"GroupDescription" : "Ingress for CIDRIP",
+		"DBSecurityGroupIngress" : {
+				"CIDRIP" : { "Ref" : "appcidrparameter" }
+							}	
+						}
+			}
 			
+	"TalendDBsubnetgroup" : {
 
-			
+		"Type" : "AWS::RDS::DBSubnetGroup",
+		"Properties" : {
+		"SubnetIds" : { "Ref" : "DBSubnet" },
+						}
+	}
 
-			
+	"TalendDB": {
+            "Type": "AWS::RDS::DBInstance",
+            "Properties": {
+                "DBInstanceIdentifier": {
+                    "Ref": "DBInstanceID"
+                },
+                "DBName": {
+                    "Ref": "DBName"
+                },
+                "DBInstanceClass": {
+                    "Ref": "DBInstanceClass"
+                },
+                "AllocatedStorage": {
+                    "Ref": "DBAllocatedStorage"
+                },
+                "Engine": "postgres",
+                "EngineVersion": "13.3",
+                "MasterUsername": {
+                    "Ref": "master"
+                },
+                "MasterUserPassword": {
+                    "Ref": "password"
+                },
+				
+				"DBSecurityGroups" : {
+                    "Ref": "TalendDbSecurityGroup"
+                },
+				
+				"DBSubnetGroupName" : {
+				"Ref": "TalendDBsubnetgroup"
+				}
 
-   
-
-   
+            }
+        }
+ 	  
 
    }
 
