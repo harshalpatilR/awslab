@@ -3,173 +3,129 @@
 "AWSTemplateFormatVersion": "2010-09-09",
 
 "Parameters" : {
-  "appinstanceparameter" : {
+	"appinstanceparameter" : {
     "Type" : "String",
     "Default" : "r5.2xlarge"},
 	
-  "keypairparameter" : {
+	"keypairparameter" : {
     "Type" : "String",
-    "Default" : "harshalkeypair2"} 
+    "Default" : "harshalkeypair2"},
+	
+	"VPCcidrparameter" : {
+    "Type" : "String",
+    "Default" : "10.0.0.0/16"},	
+
+	"appcidrparameter" : {
+    "Type" : "String",
+    "Default" : "10.0.0.0/24"},	
+	
+	"dbcidrparameter" : {
+    "Type" : "String",
+    "Default" : "10.0.1.0/24"},
+	
+	"linuxAMIidparameter" : {
+	"Type" : "String",
+    "Default" : "ami-0f511ead81ccde020"
+	},
+	
+	"windowsAMIidparameter" : {
+	"Type" : "String",
+    "Default" : "ami-0a2232786115639d7"
+	}
   },
 
 "Resources": {
 
    "TalendDemoVPC": {
-
             "Type": "AWS::EC2::VPC",
-
             "Properties": {
-
-			 "CidrBlock": "10.0.0.0/16",
-
-			 "Tags" : [{"Key": "Category", "Value":"Talend Demo"}]
-
+			 "CidrBlock": { "Ref" : "VPCcidrparameter" },
+			 "Tags" : [{"Key": "Name", "Value":"TalendDemoVPC"},{"Key": "Category", "Value":"Talend Demo"}]
 				}
-
             },
 
-			
-
 	"AppSubnet": {
-
 			"Type" : "AWS::EC2::Subnet",
-
 			"Properties" : {
-
 				"VpcId" : { "Ref" : "TalendDemoVPC" },
-
-				"CidrBlock" : "10.0.0.0/24",
-
-				"Tags" : [ { "Key" : "Category", "Value": "Talend Demo"} ]
-
+				"CidrBlock" : { "Ref" : "appcidrparameter" },
+				"Tags" : [{"Key": "Name", "Value":"TalendAppSubnet"},{ "Key" : "Category", "Value": "Talend Demo"}]
 				}
 
 			},
 
- 
-
 	"DBSubnet": {
-
 			"Type" : "AWS::EC2::Subnet",
-
 			"Properties" : {
-
 				"VpcId" : { "Ref" : "TalendDemoVPC" },
-
-				"CidrBlock" : "10.0.1.0/24",
-
-				"Tags" : [ { "Key" : "Category", "Value": "Talend Demo"} ]
-
+				"CidrBlock" : { "Ref" : "dbcidrparameter" },
+				"Tags" : [{"Key": "Name", "Value":"TalendDBSubnet"}, { "Key" : "Category", "Value": "Talend Demo"}]
 				}
-
 			}, 
 
-			
-
 	"AppSecGrp" : {
-
 			"Type" : "AWS::EC2::SecurityGroup",
-
 			"Properties" : {
-
 				"GroupDescription" : "Allow http, https, rdp, postgresql and ssh to hosts",
-
 				"VpcId" : {"Ref" : "TalendDemoVPC"},
-
+				"Tags" : [{"Key": "Name", "Value":"TalendAppSecGrp"}, { "Key" : "Category", "Value": "Talend Demo"}]
 				"SecurityGroupIngress" : [
-
 						{
-
 						"IpProtocol" : "tcp",
-
 						"FromPort" : 22,
-
 						"ToPort" : 22,
-
 						"CidrIp" : "0.0.0.0/0"},
-
+						
 						{
-
 						"IpProtocol" : "tcp",
-
 						"FromPort" : 80,
-
 						"ToPort" : 80,
-
 						"CidrIp" : "0.0.0.0/0"},
-
+						
 						{
-
 						"IpProtocol" : "tcp",
-
 						"FromPort" : 443,
-
 						"ToPort" : 443,
-
 						"CidrIp" : "0.0.0.0/0"},
 
 						{
-
 						"IpProtocol" : "tcp",
-
 						"FromPort" : 3389,
-
 						"ToPort" : 3389,
-
 						"CidrIp" : "0.0.0.0/0"},
 
 						{
-
 						"IpProtocol" : "tcp",
-
 						"FromPort" : 5432,
-
 						"ToPort" : 5432,
-
 						"CidrIp" : "0.0.0.0/0"}
 
 						]
-
-						}},
-						
+						}},			
 
 	"TalendDemoIG" : {
-
 				"Type" : "AWS::EC2::InternetGateway",
-
 				"Properties" : {
-
-				"Tags" : [ { "Key" : "Category", "Value": "Talend Demo"} ]
-
+				"Tags" : [{"Key": "Name", "Value":"TalendIG"},{ "Key" : "Category", "Value": "Talend Demo"}]
 								}
-
 					},
 
-
-
 	"TalendVPCIG" : {
-
 				"Type" : "AWS::EC2::VPCGatewayAttachment",
-
 				"Properties" : {
-
 					"InternetGatewayId" : {"Ref" : "TalendDemoIG"},
-
 					"VpcId" : {"Ref" : "TalendDemoVPC"}
-
 								}
-
 					},
 
 	"PubRouteTable" : {
 					"Type" : "AWS::EC2::RouteTable",
 					"Properties" : {
 					"VpcId" : {"Ref" : "TalendDemoVPC"},
-					"Tags" : [ { "Key" : "Category", "Value": "Talend Demo"} ]
+					"Tags" : [{"Key": "Name", "Value":"TalendAppRouteTable"}, { "Key" : "Category", "Value": "Talend Demo"}]
 									}
 							},
 							
-	
 	"IGRoute" : {
 					"Type" : "AWS::EC2::Route",
 					"DependsOn" : "TalendVPCIG",
@@ -189,45 +145,31 @@
 					},				
 
    "TalendLinux": {
-
 			"Type" : "AWS::EC2::Instance",
-
 			"Properties" : {
-
 			"InstanceType" : { "Ref" : "appinstanceparameter" },
-
-			"ImageId" : "ami-0f511ead81ccde020",
-
-			"Tags" : [ { "Key" : "Category", "Value": "Talend Demo"} ],
-
+			"ImageId" : { "Ref" : "linuxAMIidparameter" },
+			"Tags" : [{"Key": "Name", "Value":"TalendLinuxEC2"},{ "Key" : "Category", "Value": "Talend Demo"} ],
+			
 			"NetworkInterfaces": [ {
-
 					"AssociatePublicIpAddress": "true",
-
 					"DeviceIndex": "0",
-
 					"GroupSet": [{ "Ref" : "AppSecGrp" }],
-
 					"SubnetId": { "Ref" : "AppSubnet" }
-
 								} ],
 
 			"KeyName" : { "Ref" : "keypairparameter" },
 
 			"BlockDeviceMappings" : [
-
 									{
 
 										"DeviceName" : "/dev/xvda",
-
 										"Ebs" : { "VolumeSize" : "100" }
-
 									},
 
 									{
 
 										"DeviceName" : "/dev/sdb",
-
 										"Ebs" : { "VolumeSize" : "300" }
 
 									}
@@ -238,30 +180,18 @@
 
 			},
 
-			
-
    "TalendWindows": {
-
 			"Type" : "AWS::EC2::Instance",
-
 			"Properties" : {
-
 			"InstanceType" : { "Ref" : "appinstanceparameter" },
-
-			"ImageId" : "ami-0a2232786115639d7",
-
-			"Tags" : [ { "Key" : "Category", "Value": "Talend Demo"} ],
+			"ImageId" : { "Ref" : "windowsAMIidparameter" },
+			"Tags" : [{"Key": "Name", "Value":"TalendWindowsEC2"}, { "Key" : "Category", "Value": "Talend Demo"}],
 
 			"NetworkInterfaces": [ {
-
 					"AssociatePublicIpAddress": "true",
-
 					"DeviceIndex": "0",
-
 					"GroupSet": [{ "Ref" : "AppSecGrp" }],
-
 					"SubnetId": { "Ref" : "AppSubnet" }
-
 								} ],
 
 			"KeyName" : { "Ref" : "keypairparameter" },
@@ -269,19 +199,13 @@
 			"BlockDeviceMappings" : [
 
 									{
-
 										"DeviceName" : "/dev/sda1",
-
 										"Ebs" : { "VolumeSize" : "100" }
-
 									},
 
 									{
-
 										"DeviceName" : "xvdc",
-
 										"Ebs" : { "VolumeSize" : "300" }
-
 									}
 
 									]
